@@ -15,26 +15,6 @@ def save_to_json(metrics, name):
     with open(name, 'w') as f:
         json.dump(metrics, f, indent=4)
 
-def build_scores_arrays(metrics_dict):
-    accuracy_mean_list, accuracy_sem_list = [], []
-    roc_auc_mean_list, roc_auc_sem_list = [], []
-    precision_mean_list, precision_sem_list = [], []
-    for data_name in metrics_dict.keys():
-        accuracy_arr = [score['accuracy'] for score in metrics_dict[data_name]]
-        roc_auc_arr = [score['roc_auc'] for score in metrics_dict[data_name]]
-        precision_arr = [score['precision'] for score in metrics_dict[data_name]]
-        accuracy_mean_list.append(np.mean(accuracy_arr))
-        accuracy_sem_list.append(sem(accuracy_arr))
-        roc_auc_mean_list.append(np.mean(roc_auc_arr))
-        roc_auc_sem_list.append(sem(roc_auc_arr))
-        precision_mean_list.append(np.mean(precision_arr))
-        precision_sem_list.append(sem(precision_arr))
-    return {
-        'accuracy': {'mean': accuracy_mean_list, 'sem': accuracy_sem_list},
-        'roc_auc': {'mean': roc_auc_mean_list, 'sem': roc_auc_sem_list},
-        'precision': {'mean': precision_mean_list, 'sem': precision_sem_list},
-    }
-
 def evaluate_metrics(y_test, y_pred):
     return {
         'accuracy': metrics.accuracy_score(y_test, y_pred),
