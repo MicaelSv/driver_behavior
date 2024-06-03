@@ -135,7 +135,7 @@ def evaluate_random_forest(train_path, test_path, FEATURES):
 
     clf = RandomForestClassifier(n_estimators=50, min_samples_split=6, min_samples_leaf=3, max_features='sqrt', max_depth=10, bootstrap=True)
     clf.fit(X_train, y_train)
-    print("treinado")
+    
 
     y_pred = clf.predict(X_test)
     return evaluate_metrics(y_test, y_pred)
