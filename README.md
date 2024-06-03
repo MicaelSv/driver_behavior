@@ -1,4 +1,4 @@
-# Identificação do Comportamento de Motoristas: Uma Abordagem Baseada em Teoria da Informação
+# Identificação do Comportamento de Motoristas
 
 Este repositório contém o código utilizado para classificar o comportamento de motoristas com base em dados de sensores. A classificação é realizada utilizando dois modelos de aprendizado de máquina: Random Forest e Long Short-Term Memory (LSTM). Os dados incluem leituras de acelerômetro e giroscópio de veículos, categorizadas em três classes: lento, normal e agressivo. Este trabalho combina aprendizado de máquina com medidas de teoria da informação para melhorar a precisão dos modelos.
 
