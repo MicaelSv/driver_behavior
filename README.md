@@ -13,5 +13,5 @@ As características informacionais incluem medidas de entropia e complexidade de
 
 ## Scripts
 
-- 'mymodels.py': Contém funções para construir e avaliar os modelos Random Forest e LSTM.
-- 'mygraphics.py': Carrega os resultados das métricas de avaliação dos modelos a partir de arquivos JSON e gera gráficos comparativos de desempenho.
+- `mymodels.py`: Contém funções para construir e avaliar os modelos Random Forest e LSTM.
+- `mygraphics.py`: Carrega os resultados das métricas de avaliação dos modelos a partir de arquivos JSON e gera gráficos comparativos de desempenho.
