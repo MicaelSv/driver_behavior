@@ -10,3 +10,8 @@ Os conjuntos de dados são divididos em conjuntos de treinamento e teste, com di
 - Dados de giroscópio: 'GyroX', 'GyroY', 'GyroZ'
 
 As características informacionais incluem medidas de entropia e complexidade derivadas dos dados de sensores brutos.
+
+## Scripts
+
+- 'mymodels.py': Contém funções para construir e avaliar os modelos Random Forest e LSTM.
+- 'mygraphics.py': Carrega os resultados das métricas de avaliação dos modelos a partir de arquivos JSON e gera gráficos comparativos de desempenho.
