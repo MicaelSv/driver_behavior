@@ -124,21 +124,22 @@ if __name__ == '__main__':
     FEATURES_RAW = ['AccX', 'AccY', 'AccZ', 'GyroX', 'GyroY', 'GyroZ']
     FEATURES_INF = ['AccX_entropy', 'AccX_complexity', 'AccY_entropy', 'AccY_complexity', 'AccZ_entropy', 'AccZ_complexity', 'GyroX_entropy', 'GyroX_complexity', 'GyroY_entropy', 'GyroY_complexity', 'GyroZ_entropy', 'GyroZ_complexity']
 
+    path = './datasets/'
     datasets = [
-        ('train_motion_data.csv', 'test_motion_data.csv', 'default', FEATURES_RAW),
-        ('inf_w60_dx5_train_motion_data.csv', 'inf_w60_dx5_test_motion_data.csv', '60', FEATURES_INF),
-        ('inf_w120_dx5_train_motion_data.csv', 'inf_w120_dx5_test_motion_data.csv', '120', FEATURES_INF),
-        ('inf_w180_dx6_train_motion_data.csv', 'inf_w180_dx6_test_motion_data.csv', '180', FEATURES_INF),
-        ('inf_w240_dx6_train_motion_data.csv', 'inf_w240_dx6_test_motion_data.csv', '240', FEATURES_INF),
-        ('inf_w300_dx6_train_motion_data.csv', 'inf_w300_dx6_test_motion_data.csv', '300', FEATURES_INF),
-        ('inf_w360_dx6_train_motion_data.csv', 'inf_w360_dx6_test_motion_data.csv', '360', FEATURES_INF),
-        ('inf_w420_dx6_train_motion_data.csv', 'inf_w420_dx6_test_motion_data.csv', '420', FEATURES_INF),
-        ('inf_w480_dx6_train_motion_data.csv', 'inf_w480_dx6_test_motion_data.csv', '480', FEATURES_INF),
-        ('inf_w540_dx6_train_motion_data.csv', 'inf_w540_dx6_test_motion_data.csv', '540', FEATURES_INF),
-        ('inf_w600_dx6_train_motion_data.csv', 'inf_w600_dx6_test_motion_data.csv', '600', FEATURES_INF),
-        ('inf_w660_dx6_train_motion_data.csv', 'inf_w660_dx6_test_motion_data.csv', '660', FEATURES_INF),
-        ('inf_w720_dx6_train_motion_data.csv', 'inf_w720_dx6_test_motion_data.csv', '720', FEATURES_INF),
-        ('inf_w780_dx7_train_motion_data.csv', 'inf_w780_dx7_test_motion_data.csv', '780', FEATURES_INF)
+        (path+'train_motion_data.csv', path+'test_motion_data.csv', 'default', FEATURES_RAW),
+        (path+'inf_w60_dx5_train_motion_data.csv', path+'inf_w60_dx5_test_motion_data.csv', '60', FEATURES_INF),
+        (path+'inf_w120_dx5_train_motion_data.csv', path+'inf_w120_dx5_test_motion_data.csv', '120', FEATURES_INF),
+        (path+'inf_w180_dx6_train_motion_data.csv', path+'inf_w180_dx6_test_motion_data.csv', '180', FEATURES_INF),
+        (path+'inf_w240_dx6_train_motion_data.csv', path+'inf_w240_dx6_test_motion_data.csv', '240', FEATURES_INF),
+        (path+'inf_w300_dx6_train_motion_data.csv', path+'inf_w300_dx6_test_motion_data.csv', '300', FEATURES_INF),
+        (path+'inf_w360_dx6_train_motion_data.csv', path+'inf_w360_dx6_test_motion_data.csv', '360', FEATURES_INF),
+        (path+'inf_w420_dx6_train_motion_data.csv', path+'inf_w420_dx6_test_motion_data.csv', '420', FEATURES_INF),
+        (path+'inf_w480_dx6_train_motion_data.csv', path+'inf_w480_dx6_test_motion_data.csv', '480', FEATURES_INF),
+        (path+'inf_w540_dx6_train_motion_data.csv', path+'inf_w540_dx6_test_motion_data.csv', '540', FEATURES_INF),
+        (path+'inf_w600_dx6_train_motion_data.csv', path+'inf_w600_dx6_test_motion_data.csv', '600', FEATURES_INF),
+        (path+'inf_w660_dx6_train_motion_data.csv', path+'inf_w660_dx6_test_motion_data.csv', '660', FEATURES_INF),
+        (path+'inf_w720_dx6_train_motion_data.csv', path+'inf_w720_dx6_test_motion_data.csv', '720', FEATURES_INF),
+        (path+'inf_w780_dx7_train_motion_data.csv', path+'inf_w780_dx7_test_motion_data.csv', '780', FEATURES_INF)
     ]
 
     #criando dicionários para armazenar os resultados das avaliações dos modelos RF e LSTM
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     lstm_metrics_dict = {data_name: [] for _, _, data_name, _ in datasets}
 
     #aqui ficam os argumentos para as funções de avaliação, com múltiplas avaliações por conjunto de dados
-    rf_args = [(train_path, test_path, FEATURES) for train_path, test_path, _, FEATURES in datasets for _ in range(28)]
+    rf_args = [(train_path, test_path, FEATURES) for train_path, test_path, _, FEATURES in datasets for _ in range(14)]
     lstm_args = [(train_path, test_path, FEATURES) for train_path, test_path, _, FEATURES in datasets for _ in range(14)]
 
     #criando um pool de processos para permitir a execução paralela do treinamento dos modelos. 
