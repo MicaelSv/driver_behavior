@@ -13,5 +13,6 @@ As características informacionais incluem medidas de entropia e complexidade de
 
 ## Scripts
 
+- `infmeasure.py` - Calcula e cria conjuntos de dados com medidas de teoria da informação a partir dos dados brutos dos sensores, que podem ser usados para treinar os modelos de aprendizado de máquina.
 - `mymodels.py` - Contém funções para construir e avaliar os modelos Random Forest e LSTM.
 - `mygraphics.py` - Carrega os resultados das métricas de avaliação dos modelos a partir de arquivos JSON e gera gráficos comparativos de desempenho.
