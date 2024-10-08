@@ -43,29 +43,35 @@ class InformationHandleFile:
             for window_df in sliding_window_df:
                 row = {}
                 for feature in window_df.drop([label, 'Timestamp'], axis=1).columns:
-                    window_without_duplicate = window_df[feature].loc[window_df[feature].shift() != window_df[feature]]
+                    window = window_df[feature]
+                    # window_without_duplicate = window_df[feature].loc[window_df[feature].shift() != window_df[feature]]
                     if len(window_without_duplicate) < dx:
                         h = c = f = s = 'NaN'
                     else:
                         t0 = time.time()
-                        h, c = ordpy.complexity_entropy(window_without_duplicate, dx=dx)
+                        data_probs = ordpy.ordinal_distribution(window, dx=dx)
                         tf = time.time()
-                        time_hc.append(tf - t0)
+                        time_probs = tf - t0
+                        
+                        t0 = time.time()
+                        h, c = ordpy.complexity_entropy(data=data_probs, dx=dx, probs=True)
+                        tf = time.time()
+                        time_hc.append(tf - t0 + time_probs)
                         #
                         t0 = time.time()
-                        s, f = ordpy.fisher_shannon(window_without_duplicate, dx=dx)
+                        f, s = ordpy.fisher_shannon(data=data_probs, dx=dx, probs=True)
                         tf = time.time()
-                        time_fs.append(tf - t0)
+                        time_fs.append(tf - t0 + time_probs)
                     # row[feature] = window_df[feature].values[-1]
                     row[f'{feature}_entropy'] = h
                     row[f'{feature}_complexity'] = c
                     row[f'{feature}_fisher'] = f
                     row[f'{feature}_shannon'] = s
-                    row[label] = window_df[label].values[-1]
-                    # # Get value most frequently
-                    # lst = window_df[label].values.tolist()
+                    # row[label] = window_df[label].values[-1]
+                    # Get value most frequently
+                    lst = window_df[label].values.tolist()
                     # row[label] = max(lst,key=lst.count)
-                    # row[label] = np.bincount(lst).argmax()
+                    row[label] = np.bincount(lst).argmax()
                 if new_df is None:
                     new_df = pd.DataFrame([row])
                 else:
