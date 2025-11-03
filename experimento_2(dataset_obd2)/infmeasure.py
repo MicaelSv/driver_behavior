@@ -57,6 +57,7 @@ def run(df, fileout, window_size, dx, label):
     }
     time_df = pd.DataFrame.from_dict(time_dict)
     time_df.to_csv(fileout+'.time', index=False)
+    print("[done]", fileout)
 
 class InformationHandleFile:
     def __init__(self, path,  window, shift=1, dx=6):
@@ -86,12 +87,13 @@ class InformationHandleFile:
 
 
     def create_inf_measures_dataset(self):
-        thread_pool = self.__process_file('C:/Users/micae/OneDrive/Área de Trabalho/artigo2/dataset_obd2.csv')
-        len_pool = len(thread_pool)
-        print(f'{len_pool} threads. Window={self.__window}. dx={self.__dx}')
-        for i, thread in enumerate(thread_pool, start=1):
-            thread.join()
-            print(f'{i}/{len_pool}')
+        thread_pool = self.__process_file('dataset_obd2.csv')
+        # len_pool = len(thread_pool)
+        # print(f'{len_pool} threads. Window={self.__window}. dx={self.__dx}')
+        # for i, thread in enumerate(thread_pool, start=1):
+        #     thread.join()
+        #     print(f'{i}/{len_pool}')
+        return thread_pool
 
 
 if __name__ == '__main__':
@@ -102,6 +104,14 @@ if __name__ == '__main__':
         (660, 6), (720, 6), (780, 7)
     ]
 
+    thread_pool = []
+
     for window, dx in ihf_configs:
         ihf = InformationHandleFile(path='.', window=window, dx=dx)
-        ihf.create_inf_measures_dataset()
+        thread_pool.extend(ihf.create_inf_measures_dataset())
+
+    len_pool = len(thread_pool)
+    print("Total treads:", len_pool)
+    for i, thread in enumerate(thread_pool, start=1):
+        thread.join()
+        print(f'{i}/{len_pool}')

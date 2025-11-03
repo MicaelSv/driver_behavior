@@ -15,7 +15,9 @@ def evaluate_metrics(y_test, y_pred):
     return {
         'accuracy': metrics.accuracy_score(y_test, y_pred),
         'precision': metrics.precision_score(y_test, y_pred, average='weighted', zero_division=0),
-        'recall': metrics.recall_score(y_test, y_pred, average='weighted', zero_division=0)
+        'recall': metrics.recall_score(y_test, y_pred, average='weighted', zero_division=0),
+        'y_test': y_test.tolist(),
+        'y_pred': y_pred.tolist()
     }
 
 def evaluate_lstm(data_path, FEATURES):
@@ -113,4 +115,4 @@ if __name__ == '__main__':
             lstm_metrics_dict[data_name].append(result)
 
     # Salvando as métricas em arquivo JSON
-    save_to_json(lstm_metrics_dict, 'lstm_metrics_results_definitive.json')
+    save_to_json(lstm_metrics_dict, 'metrics_results_lstm.json')

@@ -12,10 +12,12 @@ def save_to_json(metrics, name):
 
 # Função para calcular as métricas de avaliação
 def evaluate_metrics(y_test, y_pred):
-     return {
+    return {
         'accuracy': metrics.accuracy_score(y_test, y_pred),
         'precision': metrics.precision_score(y_test, y_pred, average='weighted'),
-        'recall': metrics.recall_score(y_test, y_pred, average='weighted')
+        'recall': metrics.recall_score(y_test, y_pred, average='weighted'),
+        'y_test': y_test.tolist(),
+        'y_pred': y_pred.tolist()
     }
 
 # Função para avaliação do Random Forest
@@ -97,4 +99,4 @@ if __name__ == '__main__':
             rf_metrics_dict[data_name].append(result)
 
     # Salvando as métricas em arquivo JSON
-    save_to_json(rf_metrics_dict, 'rf_metrics_results.json')
+    save_to_json(rf_metrics_dict, 'metrics_results_rf.json')

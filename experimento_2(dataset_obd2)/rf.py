@@ -55,7 +55,9 @@ def evaluate_metrics(y_test, y_pred):
         'accuracy': metrics.accuracy_score(y_test, y_pred),
         'roc_auc': metrics.roc_auc_score(y_test, y_pred),
         'precision': metrics.precision_score(y_test, y_pred),
-        'recall': metrics.recall_score(y_test, y_pred)
+        'recall': metrics.recall_score(y_test, y_pred),
+        'y_test': y_test,
+        'y_pred': y_pred
     }
 
 
