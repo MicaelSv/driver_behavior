@@ -1,10 +1,10 @@
+import time
+import json
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn import metrics
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import sem
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 import json
 
@@ -41,7 +41,6 @@ def evaluate_model(data_path, FEATURES):
     # Aplicando o StandardScaler
     scaler = StandardScaler().fit(X)
 
-    from sklearn.model_selection import train_test_split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y)
 
     # Normalizando os dados
@@ -51,13 +50,20 @@ def evaluate_model(data_path, FEATURES):
 
     # Treinando o modelo Random Forest / no multiclasses, o autor utiliza 20 em n_estimators
     clf = RandomForestClassifier(n_estimators=50, min_samples_split=6, min_samples_leaf=3, max_features='sqrt', max_depth=10, bootstrap=True)
+    start_train = time.time()
     clf.fit(X_train, y_train)
+    end_train = time.time()
 
     # Fazendo as previsões
+    start_test = time.time()
     y_pred = clf.predict(X_test)
+    end_test = time.time()
     
     # Avaliando as métricas
-    return evaluate_metrics(y_test, y_pred)
+    results = evaluate_metrics(y_test, y_pred)
+    results['train_time'] = end_train - start_train
+    results['test_time'] = end_test - start_test
+    return results
 
 
 if __name__ == '__main__':
@@ -85,11 +91,11 @@ if __name__ == '__main__':
     rf_metrics_dict = {data_name: [] for _, data_name, _ in datasets}
 
     # Avaliando os datasets um por um
+    num_repetition = 5
     for train_path, data_name, FEATURES in datasets:
         train_path = 'dataset/' + train_path
-        print('Dataset:', data_name)
-        for i in range(5):
-            print(f'\tRepetição #{i}')
+        for i in range(num_repetition):
+            print(f'Dataset: {data_name}, Repetição {i}/{num_repetition}')
             result = evaluate_model(train_path, FEATURES)
             rf_metrics_dict[data_name].append(result)
 

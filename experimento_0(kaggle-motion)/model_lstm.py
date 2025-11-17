@@ -1,4 +1,5 @@
 import json
+import time
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -146,25 +147,35 @@ def evaluate_lstm(data_path, FEATURES, sequence_length=50):
     ]
     
     # Treinar o modelo
+    start_train = time.time()
     history = model.fit(
         X_train, y_train,
         epochs=10,
         batch_size=32,
         validation_data=(X_test, y_test),
         callbacks=callbacks,
-        verbose=1,
+        verbose=0,
         shuffle=False
     )
+    end_train = time.time()
     
     # Fazendo previsões
+    start_test = time.time()
     y_pred_prob = model.predict(X_test)
+    end_test = time.time()
     y_pred = np.argmax(y_pred_prob, axis=1)
     
     # Retornar métricas
-    return evaluate_metrics(y_test, y_pred)
+    results = evaluate_metrics(y_test, y_pred)
+    results['train_time'] = end_train - start_train
+    results['test_time'] = end_test - start_test
+    return results
 
 
-# Executando o código principal
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+
 if __name__ == '__main__':
     FEATURES_RAW = ['AccX', 'AccY', 'AccZ', 'GyroX', 'GyroY', 'GyroZ']
     FEATURES_INF = [
@@ -187,13 +198,14 @@ if __name__ == '__main__':
     lstm_metrics_dict = {data_name: [] for _, data_name, _ in datasets}
 
     # Avaliando os datasets um por um
+    num_repetition = 5
     for train_path, data_name, FEATURES in datasets:
         train_path = 'dataset/' + train_path
-        print('Dataset:', data_name)
-        for i in range(5):
-            print(f'\tRepetição #{i}')
+        for i in range(num_repetition):
+            print(f'Dataset: {data_name}, Repetição {i}/{num_repetition}')
             result = evaluate_lstm(train_path, FEATURES)
             lstm_metrics_dict[data_name].append(result)
 
     # Salvando os resultados em um arquivo JSON
     save_to_json(lstm_metrics_dict, 'metrics_results_lstm.json')
+

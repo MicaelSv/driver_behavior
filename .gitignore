@@ -1,0 +1,8 @@
+# Figures
+*.svg
+
+# Best models
+*.h5
+
+# Virtual enviroment
+venv
