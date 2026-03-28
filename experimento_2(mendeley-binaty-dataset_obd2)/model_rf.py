@@ -1,22 +1,32 @@
 import time
 import json
+import os
+import numpy as np
 import pandas as pd
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-import json
+RANDOM_STATE = 42
 
 def save_to_json(metrics, name):
     with open(name, 'w') as f:
         json.dump(metrics, f)
 
 
+def get_inf_feature_time(data_path):
+    time_file = f"{data_path}.time"
+    if not os.path.exists(time_file):
+        return 0.0
+
+    time_df = pd.read_csv(time_file)
+    return float(time_df['time_hc'].sum() + time_df['time_fs'].sum())
+
+
 def evaluate_metrics(y_test, y_pred):
     return {
         'accuracy': metrics.accuracy_score(y_test, y_pred),
-        'roc_auc': metrics.roc_auc_score(y_test, y_pred),
         'precision': metrics.precision_score(y_test, y_pred),
         'recall': metrics.recall_score(y_test, y_pred),
         'y_test': y_test.tolist(),
@@ -38,17 +48,17 @@ def evaluate_model(data_path, FEATURES):
     X = df[FEATURES]
     y = df['Class']
 
-    # Aplicando o StandardScaler
-    scaler = StandardScaler().fit(X)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y)
+    # Divisão treino (70%) / validação (15%) / teste (15%)
+    X_tv, X_test, y_tv, y_test = train_test_split(X, y, test_size=0.15, stratify=y, random_state=RANDOM_STATE)
+    X_train, X_val, y_train, y_val = train_test_split(X_tv, y_tv, test_size=0.176, stratify=y_tv, random_state=RANDOM_STATE)
 
     # Normalizando os dados
     scaler = StandardScaler().fit(X_train)
     X_train = scaler.transform(X_train)
+    X_val = scaler.transform(X_val)
     X_test = scaler.transform(X_test)
 
-    # Treinando o modelo Random Forest / no multiclasses, o autor utiliza 20 em n_estimators
+    # Treinando o modelo Random Forest
     clf = RandomForestClassifier(n_estimators=50, min_samples_split=6, min_samples_leaf=3, max_features='sqrt', max_depth=10, bootstrap=True)
     start_train = time.time()
     clf.fit(X_train, y_train)
@@ -57,16 +67,22 @@ def evaluate_model(data_path, FEATURES):
     # Fazendo as previsões
     start_test = time.time()
     y_pred = clf.predict(X_test)
+    y_val_pred = clf.predict(X_val)
     end_test = time.time()
-    
+
     # Avaliando as métricas
     results = evaluate_metrics(y_test, y_pred)
+    results['val_accuracy'] = metrics.accuracy_score(y_val, y_val_pred)
     results['train_time'] = end_train - start_train
     results['test_time'] = end_test - start_test
+    feature_time = get_inf_feature_time(data_path)
+    results['feature_extraction_time'] = feature_time
+    results['total_pipeline_time'] = feature_time + results['train_time'] + results['test_time']
     return results
 
 
 if __name__ == '__main__':
+    base_dir = os.path.dirname(os.path.abspath(__file__))
     # Definindo as features para cada tipo de dataset
     FEATURES_RAW = ['AccX', 'AccY', 'AccZ', 'GyroX', 'GyroY', 'GyroZ']
     FEATURES_INF = [
@@ -93,7 +109,7 @@ if __name__ == '__main__':
     # Avaliando os datasets um por um
     num_repetition = 5
     for train_path, data_name, FEATURES in datasets:
-        train_path = 'dataset/' + train_path
+        train_path = os.path.join(base_dir, 'dataset', train_path)
         for i in range(num_repetition):
             print(f'Dataset: {data_name}, Repetição {i}/{num_repetition}')
             result = evaluate_model(train_path, FEATURES)

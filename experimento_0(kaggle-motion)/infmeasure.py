@@ -4,6 +4,7 @@ import ordpy
 import pandas as pd
 import time
 import os
+from pathlib import Path
 
 def get_sub_lists(original_list, delta):
     pivot = 0
@@ -22,6 +23,7 @@ def run(df, fileout, window_size, dx, label):
     new_df_sz = 0
     time_hc = []
     time_fs = []
+    feature_times = {}
     for window_df in sliding_window_df:
         row = {}
         for feature in window_df.drop([label], axis=1).columns:
@@ -32,12 +34,19 @@ def run(df, fileout, window_size, dx, label):
                 t0 = time.time()
                 h, c = ordpy.complexity_entropy(window_without_duplicate, dx=dx)
                 tf = time.time()
-                time_hc.append(tf - t0)
+                elapsed_hc = tf - t0
+                time_hc.append(elapsed_hc)
                 #
                 t0 = time.time()
                 s, f = ordpy.fisher_shannon(window_without_duplicate, dx=dx)
                 tf = time.time()
-                time_fs.append(tf - t0)
+                elapsed_fs = tf - t0
+                time_fs.append(elapsed_fs)
+
+                if feature not in feature_times:
+                    feature_times[feature] = {'time_hc': [], 'time_fs': []}
+                feature_times[feature]['time_hc'].append(elapsed_hc)
+                feature_times[feature]['time_fs'].append(elapsed_fs)
             row[f'{feature}_entropy'] = h
             row[f'{feature}_complexity'] = c
             row[f'{feature}_fisher'] = f
@@ -55,14 +64,35 @@ def run(df, fileout, window_size, dx, label):
         'time_fs': time_fs
     }
     time_df = pd.DataFrame.from_dict(time_dict)
-    time_df.to_csv(fileout+'.time', index=False)
+    time_df.to_csv(f'{fileout}.time', index=False)
+
+    if feature_times:
+        feature_rows = []
+        for feature, values in feature_times.items():
+            sum_time_hc = float(np.sum(values['time_hc']))
+            sum_time_fs = float(np.sum(values['time_fs']))
+            mean_time_hc = float(np.mean(values['time_hc']))
+            mean_time_fs = float(np.mean(values['time_fs']))
+            feature_rows.append({
+                'feature': feature,
+                'calc_count': len(values['time_hc']),
+                'sum_time_hc': sum_time_hc,
+                'sum_time_fs': sum_time_fs,
+                'mean_time_hc': mean_time_hc,
+                'mean_time_fs': mean_time_fs,
+                'sum_time_total': sum_time_hc + sum_time_fs,
+                'mean_time_total': mean_time_hc + mean_time_fs,
+            })
+        feature_time_df = pd.DataFrame(feature_rows)
+        feature_time_df.to_csv(f'{fileout}.time_by_feature.csv', index=False)
 
 class InformationHandleFile:
     def __init__(self, path,  window, shift=1, dx=6):
         self.__window = window
         self.__shift = shift
         self.__dx = dx
-        self.__path = path
+        base_dir = Path(__file__).resolve().parent
+        self.__path = (base_dir / path).resolve()
         self.__time_hc = []
         self.__time_fs = []
         self.__class = 'Class'
@@ -71,8 +101,8 @@ class InformationHandleFile:
         return self.__dx
 
     def __process_file(self, file):
-        filein = file
-        fileout = f'{self.__path}/inf_w{self.__window}_dx{self.__dx}_{file.split("/")[-1]}'
+        filein = self.__path / file
+        fileout = self.__path / f'inf_w{self.__window}_dx{self.__dx}_{Path(file).name}'
         df = pd.read_csv(filein)
         p = multiprocessing.Process(target=run,
                                     args=(df, fileout,
@@ -100,7 +130,7 @@ if __name__ == '__main__':
     thread_pool = []
 
     for window, dx in ihf_configs:
-        ihf = InformationHandleFile(path='.', window=window, dx=dx)
+        ihf = InformationHandleFile(path='dataset', window=window, dx=dx)
         thread_pool.extend(ihf.create_inf_measures_dataset())
 
     len_pool = len(thread_pool)
